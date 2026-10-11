@@ -31,7 +31,8 @@ data class ChatItem(
     @Json(name = "is_group") val is_group: Boolean = false,
     @Json(name = "is_channel") val is_channel: Boolean = false,
     @Json(name = "unread") val unread: Int = 0,
-    @Json(name = "last_message") val last_message: String = "N/A"
+    @Json(name = "last_message") val last_message: String = "N/A",
+    @Json(name = "photo_url") val photo_url: String? = null
 )
 
 @JsonClass(generateAdapter = true)

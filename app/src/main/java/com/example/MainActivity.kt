@@ -178,6 +178,7 @@ fun NxPanelRootApp(
                         filteredChats = filteredChats,
                         baseUrl = preferences.baseUrl,
                         onSearchQueryChange = { viewModel.setSearchQuery(it) },
+                        onSelectFilter = { viewModel.setSelectedFilter(it) },
                         onRefresh = {
                             viewModel.triggerFeedback()
                             viewModel.loadHomeData(showLoading = true)

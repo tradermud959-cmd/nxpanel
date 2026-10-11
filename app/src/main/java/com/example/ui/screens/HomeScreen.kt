@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Refresh
@@ -31,13 +32,19 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -45,6 +52,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.network.ChatItem
 import com.example.ui.NxUiState
 import com.example.ui.components.NxBadge
@@ -65,6 +73,7 @@ fun HomeScreen(
     filteredChats: List<ChatItem>,
     baseUrl: String,
     onSearchQueryChange: (String) -> Unit,
+    onSelectFilter: (String) -> Unit,
     onRefresh: () -> Unit,
     onOpenDrawer: () -> Unit,
     onChatClick: (ChatItem) -> Unit,
@@ -124,7 +133,7 @@ fun HomeScreen(
                 }
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = if (uiState.isServerOnline) "TERMUX LOCAL · ONLINE" else "TERMUX LOCAL · OFFLINE",
+                    text = if (uiState.isServerOnline) "NXSERVER · ONLINE" else "NXSERVER · OFFLINE",
                     color = if (uiState.isServerOnline) nxColors.online else nxColors.accent,
                     fontFamily = SpaceGroteskFontFamily,
                     fontWeight = FontWeight.Bold,
@@ -157,6 +166,14 @@ fun HomeScreen(
             onQueryChange = onSearchQueryChange
         )
 
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Filter Tabs di bawah Search Bar: [ USER ] | [ GROUP ] | [ CHANNEL ]
+        NxFilterTabsRow(
+            selectedFilter = uiState.selectedFilter,
+            onSelectFilter = onSelectFilter
+        )
+
         Spacer(modifier = Modifier.height(14.dp))
 
         // Pull-to-refresh + LazyColumn list chat
@@ -176,6 +193,7 @@ fun HomeScreen(
                     item {
                         NxCard(
                             isBright = false,
+                            cornerRadius = 12.dp,
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Column(
@@ -184,52 +202,72 @@ fun HomeScreen(
                                     .padding(vertical = 18.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
+                                // Ikon Neo-Brutalist tebal dengan hard shadow
+                                val iconShape = RoundedCornerShape(14.dp)
                                 Box(
-                                    modifier = Modifier
-                                        .size(64.dp)
-                                        .clip(CircleShape)
-                                        .background(nxColors.accent)
-                                        .border(3.dp, nxColors.borderBlack, CircleShape),
-                                    contentAlignment = Alignment.Center
+                                    modifier = Modifier.padding(end = 4.dp, bottom = 4.dp)
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Forum,
-                                        contentDescription = "No Chats",
-                                        tint = nxColors.cardBrightText,
-                                        modifier = Modifier.size(32.dp)
+                                    Box(
+                                        modifier = Modifier
+                                            .size(68.dp)
+                                            .offset(x = 4.dp, y = 4.dp)
+                                            .background(color = nxColors.shadow, shape = iconShape)
                                     )
+                                    Box(
+                                        modifier = Modifier
+                                            .size(68.dp)
+                                            .clip(iconShape)
+                                            .background(nxColors.accent, shape = iconShape)
+                                            .border(3.dp, nxColors.borderBlack, iconShape),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = if (!uiState.isServerOnline || uiState.chats.isEmpty()) {
+                                                Icons.Default.CloudOff
+                                            } else {
+                                                Icons.Default.Forum
+                                            },
+                                            contentDescription = "Server Offline / Empty State",
+                                            tint = nxColors.cardBrightText,
+                                            modifier = Modifier.size(36.dp)
+                                        )
+                                    }
                                 }
 
-                                Spacer(modifier = Modifier.height(14.dp))
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                val titleText = if (!uiState.isServerOnline || uiState.chats.isEmpty()) {
+                                    "SERVER OFFLINE"
+                                } else {
+                                    "TIDAK ADA CHAT [${uiState.selectedFilter}]"
+                                }
+
+                                NxHalftoneTitle(
+                                    text = titleText,
+                                    fontSize = 24,
+                                    textColor = nxColors.accent
+                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                val subtitleText = if (!uiState.isServerOnline || uiState.chats.isEmpty()) {
+                                    "Pastikan NXServer lu sudah menyala di Termux."
+                                } else if (uiState.searchQuery.isNotBlank()) {
+                                    "Tidak ada chat kategori ${uiState.selectedFilter} yang cocok dengan \"${uiState.searchQuery}\"."
+                                } else {
+                                    "Belum ada daftar chat untuk kategori ${uiState.selectedFilter}."
+                                }
 
                                 Text(
-                                    text = if (uiState.searchQuery.isNotBlank()) {
-                                        "CHAT TIDAK DITEMUKAN"
-                                    } else {
-                                        "BELUM ADA DATA CHAT DARI SERVER"
-                                    },
+                                    text = subtitleText,
                                     color = nxColors.cardDarkText,
                                     fontFamily = SpaceGroteskFontFamily,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
+                                    fontSize = 14.sp,
                                     textAlign = TextAlign.Center
                                 )
 
-                                Spacer(modifier = Modifier.height(6.dp))
-
-                                Text(
-                                    text = if (uiState.searchQuery.isNotBlank()) {
-                                        "Tidak ada nama chat yang cocok dengan \"${uiState.searchQuery}\"."
-                                    } else {
-                                        "Pastikan backend Python di Termux aktif pada endpoint:\n$baseUrl/chats?limit=50"
-                                    },
-                                    color = nxColors.subText,
-                                    fontFamily = JetBrainsMonoFontFamily,
-                                    fontSize = 12.sp,
-                                    textAlign = TextAlign.Center
-                                )
-
-                                Spacer(modifier = Modifier.height(16.dp))
+                                Spacer(modifier = Modifier.height(18.dp))
 
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -238,13 +276,14 @@ fun HomeScreen(
                                     NxButton(
                                         text = "MUAT ULANG",
                                         icon = Icons.Default.Refresh,
+                                        isDarkVariant = false,
                                         onClick = onRefresh,
                                         modifier = Modifier.weight(1f)
                                     )
                                     NxButton(
-                                        text = "SETTING URL",
+                                        text = "SETTING",
                                         icon = Icons.Default.Settings,
-                                        isDarkVariant = true,
+                                        isDarkVariant = false,
                                         onClick = onNavigateToSetting,
                                         modifier = Modifier.weight(1f)
                                     )
@@ -267,11 +306,100 @@ fun HomeScreen(
                     ) { chat ->
                         ChatItemRowCard(
                             chat = chat,
+                            baseUrl = baseUrl,
                             onClick = { onChatClick(chat) }
                         )
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * Ketentuan UI Filter Tabs (Gaya Neo-Brutalist 3D Comic):
+ * 1. Baris horizontal (Row) dengan 3 tombol tab: [ USER ] | [ GROUP ] | [ CHANNEL ].
+ * 2. Default tab aktif adalah "USER".
+ * 3. Desain Tab Aktif: Fill warna Accent dari tema (LocalNxColors.current), text HITAM, border hitam 3dp, hard shadow putih #E8E8E8 offset 4dp.
+ * 4. Desain Tab Tidak Aktif: Fill CardDark dari tema, text terang, border Accent 2.5dp, hard shadow putih #E8E8E8 offset 5dp.
+ * 5. Gunakan font SpaceGrotesk-Bold untuk teks tab.
+ * 6. Jangan hardcode warna. Gunakan LocalNxColors.current.
+ */
+@Composable
+private fun NxFilterTabsRow(
+    selectedFilter: String,
+    onSelectFilter: (String) -> Unit
+) {
+    val tabs = listOf("USER", "GROUP", "CHANNEL")
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("filter_tabs_row"),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        tabs.forEach { tab ->
+            val isActive = selectedFilter.equals(tab, ignoreCase = true)
+            NxFilterTabButton(
+                label = tab,
+                isActive = isActive,
+                onClick = { onSelectFilter(tab) },
+                modifier = Modifier
+                    .weight(1f)
+                    .testTag("filter_tab_${tab.lowercase()}")
+            )
+        }
+    }
+}
+
+@Composable
+private fun NxFilterTabButton(
+    label: String,
+    isActive: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val nxColors = LocalNxColors.current
+    val shape = RoundedCornerShape(10.dp)
+
+    val shadowOffset = if (isActive) 4.dp else 5.dp
+    val borderWidth = if (isActive) 3.dp else 2.5.dp
+    val fillColor = if (isActive) nxColors.accent else nxColors.cardDark
+    val textColor = if (isActive) nxColors.cardBrightText else nxColors.cardDarkText
+    val borderColor = if (isActive) nxColors.borderBlack else nxColors.accent
+
+    Box(
+        modifier = modifier
+            .minimumInteractiveComponentSize()
+            .padding(end = shadowOffset, bottom = shadowOffset)
+    ) {
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .offset(x = shadowOffset, y = shadowOffset)
+                .background(color = nxColors.shadow, shape = shape)
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(shape)
+                .background(color = fillColor, shape = shape)
+                .border(width = borderWidth, color = borderColor, shape = shape)
+                .clickable { onClick() }
+                .padding(vertical = 11.dp, horizontal = 8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = label,
+                color = textColor,
+                fontFamily = SpaceGroteskFontFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 13.sp,
+                letterSpacing = 0.8.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }
@@ -358,6 +486,7 @@ private fun NxSearchBar(
 @Composable
 private fun ChatItemRowCard(
     chat: ChatItem,
+    baseUrl: String,
     onClick: () -> Unit
 ) {
     val nxColors = LocalNxColors.current
@@ -374,6 +503,21 @@ private fun ChatItemRowCard(
     } catch (_: Exception) {
         "NX"
     }
+
+    val resolvedPhotoUrl = remember(chat.photo_url, baseUrl) {
+        val raw = chat.photo_url?.trim()
+        if (raw.isNullOrEmpty() || raw.equals("null", ignoreCase = true)) {
+            null
+        } else if (raw.startsWith("http://") || raw.startsWith("https://")) {
+            raw
+        } else {
+            val cleanBase = baseUrl.trim().removeSuffix("/")
+            val cleanPath = if (raw.startsWith("/")) raw else "/$raw"
+            "$cleanBase$cleanPath"
+        }
+    }
+
+    var imageLoadFailed by remember(resolvedPhotoUrl) { mutableStateOf(false) }
 
     val typeTag = when {
         chat.is_channel -> "CHANNEL"
@@ -394,7 +538,7 @@ private fun ChatItemRowCard(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Avatar bulat (inisial nama, bg accent) + border hitam tebal + hard shadow
+            // Avatar bulat (CircleShape) dengan border hitam tebal 2.5dp dan hard shadow putih #E8E8E8 3dp
             Box(
                 modifier = Modifier.padding(end = 3.dp, bottom = 3.dp)
             ) {
@@ -419,6 +563,17 @@ private fun ChatItemRowCard(
                         fontWeight = FontWeight.Black,
                         fontSize = 15.sp
                     )
+                    if (resolvedPhotoUrl != null && !imageLoadFailed) {
+                        AsyncImage(
+                            model = resolvedPhotoUrl,
+                            contentDescription = safeName,
+                            contentScale = ContentScale.Crop,
+                            onError = { imageLoadFailed = true },
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(CircleShape)
+                        )
+                    }
                 }
             }
 

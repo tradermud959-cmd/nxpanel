@@ -130,7 +130,7 @@ fun InfoScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clip(RoundedCornerShape(11.dp)),
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.Fit
                         )
                     }
                 }
@@ -291,7 +291,7 @@ fun InfoScreen(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(96.dp)
+                        .size(104.dp)
                         .offset(x = 5.dp, y = 5.dp)
                         .background(color = nxColors.shadow, shape = logoShape)
                 )
@@ -299,10 +299,12 @@ fun InfoScreen(
                     painter = painterResource(id = R.drawable.logo),
                     contentDescription = "NXKAAV Project Logo",
                     modifier = Modifier
-                        .size(96.dp)
+                        .size(104.dp)
                         .clip(logoShape)
-                        .border(width = 3.dp, color = nxColors.borderBlack, shape = logoShape),
-                    contentScale = ContentScale.Crop
+                        .background(color = nxColors.cardDark, shape = logoShape)
+                        .border(width = 3.dp, color = nxColors.borderBlack, shape = logoShape)
+                        .padding(6.dp),
+                    contentScale = ContentScale.Fit
                 )
             }
 

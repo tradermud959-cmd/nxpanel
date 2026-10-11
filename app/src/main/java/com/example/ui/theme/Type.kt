@@ -9,30 +9,37 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.R
 
-// 1. ZeroPrime Halftone Italic (Judul / Display Comic Header)
+// 1. zeroprimehalfital.otf -> Judul header & judul card
 val ZeroPrimeFontFamily = FontFamily(
-    Font(R.font.zeroprime_halftone_italic, FontWeight.Bold, FontStyle.Italic),
-    Font(R.font.zeroprime_halftone_italic, FontWeight.Normal, FontStyle.Normal)
+    Font(R.font.zeroprimehalfital, FontWeight.Bold, FontStyle.Italic),
+    Font(R.font.zeroprimehalfital, FontWeight.Normal, FontStyle.Italic),
+    Font(R.font.zeroprimehalfital, FontWeight.Normal, FontStyle.Normal)
 )
 
-// 2. Space Grotesk Bold (Body / Tombol)
+// 2. SpaceGrotesk-Bold.ttf -> Body text, label, tombol, dan filter tabs
 val SpaceGroteskFontFamily = FontFamily(
-    Font(R.font.space_grotesk, FontWeight.Bold),
-    Font(R.font.space_grotesk, FontWeight.Medium),
-    Font(R.font.space_grotesk, FontWeight.Normal)
+    Font(R.font.spacegrotesk_bold, FontWeight.Bold),
+    Font(R.font.spacegrotesk_bold, FontWeight.Medium),
+    Font(R.font.spacegrotesk_bold, FontWeight.Normal)
 )
 
-// 3. Monocraft Black (Angka / Badge / Splash Title)
+// 3. Monocraft-Black.otf -> Angka, badge, counter
 val MonocraftFontFamily = FontFamily(
     Font(R.font.monocraft_black, FontWeight.Black),
     Font(R.font.monocraft_black, FontWeight.Bold),
     Font(R.font.monocraft_black, FontWeight.Normal)
 )
 
-// 4. JetBrains Mono (Data Teknis / Preview Chat)
+// 4. JetBrainsMono-Regular.ttf -> Data teknis, preview chat
 val JetBrainsMonoFontFamily = FontFamily(
-    Font(R.font.jetbrains_mono, FontWeight.Normal),
-    Font(R.font.jetbrains_mono, FontWeight.Bold)
+    Font(R.font.jetbrainsmono_regular, FontWeight.Normal),
+    Font(R.font.jetbrainsmono_regular, FontWeight.Bold)
+)
+
+// 5. PressStart2P-Regular.ttf -> Aksen retro (cadangan)
+val PressStart2PFontFamily = FontFamily(
+    Font(R.font.pressstart2p_regular, FontWeight.Normal),
+    Font(R.font.pressstart2p_regular, FontWeight.Bold)
 )
 
 val Typography = Typography(

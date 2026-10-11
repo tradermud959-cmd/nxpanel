@@ -31,6 +31,7 @@ data class NxUiState(
     val userProfile: UserProfile? = null,
     val chats: List<ChatItem> = emptyList(),
     val searchQuery: String = "",
+    val selectedFilter: String = "USER",
     val isLoadingChats: Boolean = false,
     val isServerOnline: Boolean = false,
     val currentChatId: Long? = null,
@@ -64,10 +65,16 @@ class NxPanelViewModel(application: Application) : AndroidViewModel(application)
     ) { state, _ ->
         try {
             val q = state.searchQuery.trim()
-            if (q.isEmpty()) {
-                state.chats
-            } else {
-                state.chats.filter { it.name.contains(q, ignoreCase = true) }
+            val filterType = state.selectedFilter.uppercase()
+            state.chats.filter { chat ->
+                val matchesTab = when (filterType) {
+                    "USER" -> chat.is_user
+                    "GROUP" -> chat.is_group
+                    "CHANNEL" -> chat.is_channel
+                    else -> chat.is_user
+                }
+                val matchesSearch = q.isEmpty() || chat.name.contains(q, ignoreCase = true)
+                matchesTab && matchesSearch
             }
         } catch (_: Exception) {
             emptyList()
@@ -132,6 +139,11 @@ class NxPanelViewModel(application: Application) : AndroidViewModel(application)
 
     fun setSearchQuery(query: String) {
         _uiState.value = _uiState.value.copy(searchQuery = query)
+    }
+
+    fun setSelectedFilter(filter: String) {
+        triggerFeedback()
+        _uiState.value = _uiState.value.copy(selectedFilter = filter.uppercase())
     }
 
     fun openThemeModal(show: Boolean) {
