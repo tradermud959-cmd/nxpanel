@@ -41,19 +41,37 @@ data class MessageItem(
     @Json(name = "sender_id") val sender_id: Long = 0L,
     @Json(name = "text") val text: String = "",
     @Json(name = "date") val date: String = "N/A",
-    @Json(name = "out") val out: Boolean = false
+    @Json(name = "out") val out: Boolean = false,
+    @Json(name = "has_photo") val has_photo: Boolean = false,
+    @Json(name = "photo_url") val photo_url: String? = null,
+    @Json(name = "reply_to_msg_id") val reply_to_msg_id: Long? = null
 )
 
 @JsonClass(generateAdapter = true)
 data class SendMessageRequest(
     @Json(name = "chat_id") val chat_id: Long,
-    @Json(name = "text") val text: String
+    @Json(name = "text") val text: String,
+    @Json(name = "reply_to_msg_id") val reply_to_msg_id: Long? = null
 )
 
 @JsonClass(generateAdapter = true)
 data class SendMessageResponse(
     @Json(name = "ok") val ok: Boolean = false,
     @Json(name = "id") val id: Long = 0L
+)
+
+@JsonClass(generateAdapter = true)
+data class SendPhotoPayload(
+    @Json(name = "chat_id") val chat_id: Long,
+    @Json(name = "caption") val caption: String,
+    @Json(name = "photo_base64") val photo_base64: String,
+    @Json(name = "reply_to_msg_id") val reply_to_msg_id: Long? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class SendPhotoResponse(
+    @Json(name = "ok") val ok: Boolean = false,
+    @Json(name = "id") val id: Long? = null
 )
 
 interface NxPanelApi {
@@ -75,6 +93,11 @@ interface NxPanelApi {
     suspend fun sendMessage(
         @Body request: SendMessageRequest
     ): SendMessageResponse
+
+    @POST("send_photo")
+    suspend fun sendPhoto(
+        @Body payload: SendPhotoPayload
+    ): SendPhotoResponse
 }
 
 class NxNetworkRepository {
@@ -183,16 +206,46 @@ class NxNetworkRepository {
         return executeWithRetry(maxRetries = 2) {
             getApi(baseUrl).getMessages(chatId = chatId, limit = limit).map { msg ->
                 msg.copy(
-                    text = msg.text.ifBlank { "N/A" },
+                    text = if (msg.has_photo) msg.text else msg.text.ifBlank { "N/A" },
                     date = msg.date.ifBlank { "N/A" }
                 )
             }
         }
     }
 
-    suspend fun postMessage(baseUrl: String, chatId: Long, text: String): Result<SendMessageResponse> {
+    suspend fun postMessage(
+        baseUrl: String,
+        chatId: Long,
+        text: String,
+        replyToMsgId: Long? = null
+    ): Result<SendMessageResponse> {
         return executeWithRetry(maxRetries = 2) {
-            getApi(baseUrl).sendMessage(SendMessageRequest(chat_id = chatId, text = text))
+            getApi(baseUrl).sendMessage(
+                SendMessageRequest(
+                    chat_id = chatId,
+                    text = text,
+                    reply_to_msg_id = replyToMsgId
+                )
+            )
+        }
+    }
+
+    suspend fun postPhoto(
+        baseUrl: String,
+        chatId: Long,
+        caption: String,
+        photoBase64: String,
+        replyToMsgId: Long? = null
+    ): Result<SendPhotoResponse> {
+        return executeWithRetry(maxRetries = 2) {
+            getApi(baseUrl).sendPhoto(
+                SendPhotoPayload(
+                    chat_id = chatId,
+                    caption = caption,
+                    photo_base64 = photoBase64,
+                    reply_to_msg_id = replyToMsgId
+                )
+            )
         }
     }
 }

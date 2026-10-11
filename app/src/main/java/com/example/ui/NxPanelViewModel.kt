@@ -298,14 +298,24 @@ class NxPanelViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun sendMessage(chatId: Long, text: String, onMessageSent: () -> Unit) {
+    fun sendMessage(
+        chatId: Long,
+        text: String,
+        replyToMsgId: Long? = null,
+        onMessageSent: () -> Unit
+    ) {
         val cleanText = text.trim()
         if (cleanText.isEmpty()) return
         triggerFeedback()
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isSendingMessage = true)
             val url = preferences.value.baseUrl
-            val result = networkRepo.postMessage(url, chatId = chatId, text = cleanText)
+            val result = networkRepo.postMessage(
+                baseUrl = url,
+                chatId = chatId,
+                text = cleanText,
+                replyToMsgId = replyToMsgId
+            )
             result.fold(
                 onSuccess = { response ->
                     if (response.ok) {
@@ -314,7 +324,8 @@ class NxPanelViewModel(application: Application) : AndroidViewModel(application)
                             sender_id = _uiState.value.userProfile?.id ?: 0L,
                             text = cleanText,
                             date = "Baru saja",
-                            out = true
+                            out = true,
+                            reply_to_msg_id = replyToMsgId
                         )
                         _uiState.value = _uiState.value.copy(
                             messages = _uiState.value.messages + newMsg,
@@ -326,6 +337,67 @@ class NxPanelViewModel(application: Application) : AndroidViewModel(application)
                     } else {
                         _uiState.value = _uiState.value.copy(isSendingMessage = false)
                         showNotification("Gagal mengirim pesan", NxNotificationType.ERROR)
+                    }
+                },
+                onFailure = {
+                    _uiState.value = _uiState.value.copy(
+                        isSendingMessage = false,
+                        isServerOnline = false
+                    )
+                    showNotification("Koneksi ke server gagal", NxNotificationType.ERROR)
+                }
+            )
+        }
+    }
+
+    fun sendPhoto(
+        chatId: Long,
+        caption: String,
+        photoBase64: String,
+        replyToMsgId: Long? = null,
+        onPhotoSent: () -> Unit
+    ) {
+        if (photoBase64.isBlank()) return
+        triggerFeedback()
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isSendingMessage = true)
+            val url = preferences.value.baseUrl
+            val cleanCaption = caption.trim()
+            val result = networkRepo.postPhoto(
+                baseUrl = url,
+                chatId = chatId,
+                caption = cleanCaption,
+                photoBase64 = photoBase64,
+                replyToMsgId = replyToMsgId
+            )
+            result.fold(
+                onSuccess = { response ->
+                    if (response.ok) {
+                        val displayMsg = if (cleanCaption.isNotEmpty()) {
+                            "📷 [Foto] $cleanCaption"
+                        } else {
+                            "📷 [Foto]"
+                        }
+                        val newMsg = MessageItem(
+                            id = response.id ?: System.currentTimeMillis(),
+                            sender_id = _uiState.value.userProfile?.id ?: 0L,
+                            text = cleanCaption,
+                            date = "Baru saja",
+                            out = true,
+                            has_photo = true,
+                            reply_to_msg_id = replyToMsgId
+                        )
+                        _uiState.value = _uiState.value.copy(
+                            messages = _uiState.value.messages + newMsg,
+                            isSendingMessage = false,
+                            isServerOnline = true
+                        )
+                        onPhotoSent()
+                        refreshMessages(chatId)
+                        loadHomeData(showLoading = false)
+                    } else {
+                        _uiState.value = _uiState.value.copy(isSendingMessage = false)
+                        showNotification("Gagal mengirim foto", NxNotificationType.ERROR)
                     }
                 },
                 onFailure = {

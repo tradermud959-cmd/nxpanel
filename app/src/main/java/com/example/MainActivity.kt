@@ -217,6 +217,7 @@ fun NxPanelRootApp(
                     ChatRoomScreen(
                         chatId = chatId,
                         chatName = decodedName,
+                        baseUrl = preferences.baseUrl,
                         uiState = uiState,
                         onBack = {
                             viewModel.triggerFeedback()
@@ -226,8 +227,22 @@ fun NxPanelRootApp(
                             viewModel.triggerFeedback()
                             viewModel.refreshMessages(chatId)
                         },
-                        onSendMessage = { text, onSent ->
-                            viewModel.sendMessage(chatId = chatId, text = text, onMessageSent = onSent)
+                        onSendMessage = { text, replyToId, onSent ->
+                            viewModel.sendMessage(
+                                chatId = chatId,
+                                text = text,
+                                replyToMsgId = replyToId,
+                                onMessageSent = onSent
+                            )
+                        },
+                        onSendPhoto = { caption, photoBase64, replyToId, onSent ->
+                            viewModel.sendPhoto(
+                                chatId = chatId,
+                                caption = caption,
+                                photoBase64 = photoBase64,
+                                replyToMsgId = replyToId,
+                                onPhotoSent = onSent
+                            )
                         }
                     )
                 }
