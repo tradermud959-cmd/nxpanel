@@ -113,6 +113,7 @@ fun InfoScreen(
                             .size(92.dp)
                             .offset(x = 6.dp, y = 6.dp)
                             .background(color = nxColors.shadow, shape = frameShape)
+                            .border(width = 2.5.dp, color = nxColors.borderBlack, shape = frameShape)
                     )
                     Box(
                         modifier = Modifier
@@ -145,13 +146,13 @@ fun InfoScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Badges row matching NX Kalkulator screenshot: v1.0.0 | 3D COMIC STYLE | LOCAL HTTP
+                // Badges row matching NX Kalkulator screenshot: v4.1.8 | 3D COMIC STYLE | LOCAL HTTP
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     NxBadge(
-                        text = "v1.0.0",
+                        text = "v4.1.8",
                         fillColor = nxColors.shadow,
                         textColor = nxColors.borderBlack
                     )
@@ -245,7 +246,7 @@ fun InfoScreen(
             InfoDetailItemBox(
                 icon = Icons.Default.Layers,
                 label = "Build Version",
-                value = "v1.0.0"
+                value = "v4.1.8"
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -294,6 +295,7 @@ fun InfoScreen(
                         .size(104.dp)
                         .offset(x = 5.dp, y = 5.dp)
                         .background(color = nxColors.shadow, shape = logoShape)
+                        .border(width = 2.5.dp, color = nxColors.borderBlack, shape = logoShape)
                 )
                 Image(
                     painter = painterResource(id = R.drawable.logo),

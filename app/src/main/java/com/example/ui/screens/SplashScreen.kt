@@ -87,7 +87,7 @@ fun SplashScreen(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Ikon R.drawable.icon_apps di tengah, dibungkus frame 3D Comic (border hitam 3dp, hard shadow #E8E8E8 6dp)
+            // Ikon R.drawable.icon_apps di tengah, dibungkus frame 3D Comic (border hitam 3dp, hard shadow #E8E8E8 6dp double stacked)
             val iconShape = RoundedCornerShape(22.dp)
             Box(
                 modifier = Modifier.padding(end = 6.dp, bottom = 6.dp)
@@ -97,6 +97,7 @@ fun SplashScreen(
                         .size(124.dp)
                         .offset(x = 6.dp, y = 6.dp)
                         .background(color = nxColors.shadow, shape = iconShape)
+                        .border(width = 2.5.dp, color = nxColors.borderBlack, shape = iconShape)
                 )
                 Box(
                     modifier = Modifier
@@ -131,6 +132,7 @@ fun SplashScreen(
                         .matchParentSize()
                         .offset(x = 6.dp, y = 6.dp)
                         .background(color = nxColors.shadow, shape = titleShape)
+                        .border(width = 2.5.dp, color = nxColors.borderBlack, shape = titleShape)
                 )
                 Box(
                     modifier = Modifier
@@ -195,6 +197,7 @@ fun SplashScreen(
                         .height(22.dp)
                         .offset(x = 5.dp, y = 5.dp)
                         .background(color = nxColors.shadow, shape = barShape)
+                        .border(width = 2.5.dp, color = nxColors.borderBlack, shape = barShape)
                 )
                 Box(
                     modifier = Modifier

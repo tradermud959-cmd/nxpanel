@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -58,13 +57,9 @@ import com.example.ui.theme.SpaceGroteskFontFamily
 import com.example.ui.theme.ZeroPrimeFontFamily
 
 /**
- * NxCard:
- * Box (padding kanan-bawah untuk ruang shadow) {
- *   Box matchParentSize offset kanan-bawah bg #E8E8E8 (SHADOW);
- *   Column bg cardFill + border + padding 16dp
- * }
- * Card CERAH (isBright = true): fill accent, text hitam, border hitam 3dp, shadow #E8E8E8 6dp.
- * Card GELAP (isBright = false): fill cardDark, text terang, border accent 2.5dp, shadow #E8E8E8 5dp.
+ * NxCard dengan efek "DOUBLE STACKED STICKER" (Neo-Brutalist 3D Comic):
+ * - Layer BELAKANG: Box kosong background #E8E8E8, border hitam 2.5dp, sudut sama, offset(5.dp, 5.dp).
+ * - Layer DEPAN: Elemen utama dengan background tema & border hitam 3dp (atau customBorderColor).
  */
 @Composable
 fun NxCard(
@@ -72,27 +67,28 @@ fun NxCard(
     isBright: Boolean = false,
     cornerRadius: Dp = 12.dp,
     contentPadding: Dp = 16.dp,
+    shadowOffset: Dp = 5.dp,
     customFillColor: Color? = null,
     customBorderColor: Color? = null,
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val nxColors = LocalNxColors.current
-    val shadowOffset = if (isBright) 6.dp else 5.dp
-    val borderWidth = if (isBright) 3.dp else 2.5.dp
+    val borderWidth = if (isBright) 3.dp else 3.dp
     val fillColor = customFillColor ?: if (isBright) nxColors.accent else nxColors.cardDark
-    val borderColor = customBorderColor ?: if (isBright) nxColors.borderBlack else nxColors.accent
+    val borderColor = customBorderColor ?: nxColors.borderBlack
     val shape = RoundedCornerShape(cornerRadius)
 
     Box(
         modifier = modifier.padding(end = shadowOffset, bottom = shadowOffset)
     ) {
-        // Hard Offset Shadow (TANPA BLUR, warna putih tulang #E8E8E8)
+        // Layer BELAKANG: Double Stacked Sticker Shadow (#E8E8E8 + border hitam 2.5dp)
         Box(
             modifier = Modifier
                 .matchParentSize()
                 .offset(x = shadowOffset, y = shadowOffset)
                 .background(color = nxColors.shadow, shape = shape)
+                .border(width = 2.5.dp, color = nxColors.borderBlack, shape = shape)
         )
 
         val columnModifier = Modifier
@@ -117,8 +113,8 @@ fun NxCard(
 }
 
 /**
- * NxButton:
- * Border hitam tebal (3dp) + fill accent + text hitam + hard shadow putih tulang (#E8E8E8) 4dp.
+ * NxButton dengan efek Double Stacked Sticker:
+ * Layer belakang #E8E8E8 + border hitam 2.5dp, Layer depan fill accent + border hitam 3dp.
  */
 @Composable
 fun NxButton(
@@ -131,7 +127,7 @@ fun NxButton(
     textColorOverride: Color? = null,
     borderColorOverride: Color? = null,
     cornerRadius: Dp = 10.dp,
-    shadowOffset: Dp = 4.dp,
+    shadowOffset: Dp = 5.dp,
     contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
     enabled: Boolean = true
 ) {
@@ -140,19 +136,21 @@ fun NxButton(
 
     val bgFill = fillColorOverride ?: if (isDarkVariant) nxColors.cardDark else nxColors.accent
     val txtColor = textColorOverride ?: if (isDarkVariant) nxColors.cardDarkText else nxColors.cardBrightText
-    val borderColor = borderColorOverride ?: if (isDarkVariant) nxColors.accent else nxColors.borderBlack
-    val borderWidth = if (isDarkVariant) 2.5.dp else 3.dp
+    val borderColor = borderColorOverride ?: nxColors.borderBlack
+    val borderWidth = 3.dp
 
     Box(
         modifier = modifier
             .minimumInteractiveComponentSize()
             .padding(end = shadowOffset, bottom = shadowOffset)
     ) {
+        // Layer BELAKANG: Double Stacked Sticker Shadow
         Box(
             modifier = Modifier
                 .matchParentSize()
                 .offset(x = shadowOffset, y = shadowOffset)
                 .background(color = nxColors.shadow, shape = shape)
+                .border(width = 2.5.dp, color = nxColors.borderBlack, shape = shape)
         )
 
         Row(
@@ -193,7 +191,8 @@ fun NxButton(
 
 /**
  * NxIconButton:
- * Tombol ikon kotak bergaya Neo-Brutalist 3D Comic dengan hard shadow putih tulang.
+ * Tombol ikon kotak (Refresh / Drawer) dengan fill CardDark, border hitam 2.5dp,
+ * hard shadow #E8E8E8 (double stacked) 3dp.
  */
 @Composable
 fun NxIconButton(
@@ -202,32 +201,34 @@ fun NxIconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     isAccentFill: Boolean = false,
-    size: Dp = 44.dp
+    size: Dp = 42.dp,
+    shadowOffset: Dp = 3.dp
 ) {
     val nxColors = LocalNxColors.current
     val shape = RoundedCornerShape(10.dp)
-    val shadowOffset = 4.dp
     val bgFill = if (isAccentFill) nxColors.accent else nxColors.cardDark
     val iconTint = if (isAccentFill) nxColors.cardBrightText else nxColors.cardDarkText
-    val borderColor = if (isAccentFill) nxColors.borderBlack else nxColors.borderBlack
 
     Box(
         modifier = modifier
             .minimumInteractiveComponentSize()
             .padding(end = shadowOffset, bottom = shadowOffset)
     ) {
+        // Layer BELAKANG: Double Stacked Sticker Shadow (#E8E8E8 + border hitam 2.5dp)
         Box(
             modifier = Modifier
                 .size(size)
                 .offset(x = shadowOffset, y = shadowOffset)
                 .background(color = nxColors.shadow, shape = shape)
+                .border(width = 2.5.dp, color = nxColors.borderBlack, shape = shape)
         )
+        // Layer DEPAN
         Box(
             modifier = Modifier
                 .size(size)
                 .clip(shape)
                 .background(color = bgFill, shape = shape)
-                .border(width = 2.5.dp, color = borderColor, shape = shape)
+                .border(width = 2.5.dp, color = nxColors.borderBlack, shape = shape)
                 .clickable { onClick() },
             contentAlignment = Alignment.Center
         ) {
@@ -235,7 +236,7 @@ fun NxIconButton(
                 imageVector = icon,
                 contentDescription = contentDescription,
                 tint = iconTint,
-                modifier = Modifier.size(22.dp)
+                modifier = Modifier.size(21.dp)
             )
         }
     }
@@ -243,13 +244,13 @@ fun NxIconButton(
 
 /**
  * NxComicAppIconFrame:
- * Ikon R.drawable.icon_apps dibungkus frame 3D Comic (border hitam 3dp, hard shadow #E8E8E8).
+ * Ikon R.drawable.icon_apps dibungkus frame 3D Comic Double Stacked Sticker.
  */
 @Composable
 fun NxComicAppIconFrame(
-    size: Dp = 48.dp,
-    shadowOffset: Dp = 4.dp,
-    cornerRadius: Dp = 12.dp,
+    size: Dp = 46.dp,
+    shadowOffset: Dp = 3.dp,
+    cornerRadius: Dp = 11.dp,
     modifier: Modifier = Modifier
 ) {
     val nxColors = LocalNxColors.current
@@ -258,12 +259,15 @@ fun NxComicAppIconFrame(
     Box(
         modifier = modifier.padding(end = shadowOffset, bottom = shadowOffset)
     ) {
+        // Layer BELAKANG: Double Stacked Sticker Shadow
         Box(
             modifier = Modifier
                 .size(size)
                 .offset(x = shadowOffset, y = shadowOffset)
                 .background(color = nxColors.shadow, shape = shape)
+                .border(width = 2.5.dp, color = nxColors.borderBlack, shape = shape)
         )
+        // Layer DEPAN
         Box(
             modifier = Modifier
                 .size(size)
@@ -288,7 +292,8 @@ fun NxComicAppIconFrame(
 
 /**
  * NxBadge:
- * Pill/tag dengan font Monocraft Black, border hitam tebal, dan hard shadow.
+ * Badge Counter (angka unread di Top Bar dan di chat item):
+ * default: fill hitam pekat (borderBlack), text accent, border hitam 2.5dp, hard shadow #E8E8E8 (double stacked) 3dp.
  */
 @Composable
 fun NxBadge(
@@ -300,24 +305,27 @@ fun NxBadge(
 ) {
     val nxColors = LocalNxColors.current
     val shape = RoundedCornerShape(8.dp)
-    val bg = fillColor ?: nxColors.accent
-    val fg = textColor ?: nxColors.cardBrightText
+    val bg = fillColor ?: nxColors.borderBlack
+    val fg = textColor ?: nxColors.accent
 
     Box(
         modifier = modifier.padding(end = shadowOffset, bottom = shadowOffset)
     ) {
+        // Layer BELAKANG: Double Stacked Sticker Shadow (#E8E8E8 + border hitam 2.5dp)
         Box(
             modifier = Modifier
                 .matchParentSize()
                 .offset(x = shadowOffset, y = shadowOffset)
                 .background(color = nxColors.shadow, shape = shape)
+                .border(width = 2.5.dp, color = nxColors.borderBlack, shape = shape)
         )
+        // Layer DEPAN
         Box(
             modifier = Modifier
                 .clip(shape)
                 .background(color = bg, shape = shape)
                 .border(width = 2.5.dp, color = nxColors.borderBlack, shape = shape)
-                .padding(horizontal = 10.dp, vertical = 5.dp),
+                .padding(horizontal = 10.dp, vertical = 4.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -400,6 +408,7 @@ fun NxNotificationBanner(
                     .matchParentSize()
                     .offset(x = shadowOffset, y = shadowOffset)
                     .background(color = nxColors.shadow, shape = capsuleShape)
+                    .border(width = 2.5.dp, color = nxColors.borderBlack, shape = capsuleShape)
             )
             Row(
                 modifier = Modifier
@@ -436,7 +445,8 @@ fun NxHalftoneTitle(
     text: String,
     modifier: Modifier = Modifier,
     fontSize: Int = 20,
-    textColor: Color? = null
+    textColor: Color? = null,
+    maxLines: Int = Int.MAX_VALUE
 ) {
     val nxColors = LocalNxColors.current
     val fg = textColor ?: nxColors.cardDarkText
@@ -450,6 +460,8 @@ fun NxHalftoneTitle(
             fontStyle = FontStyle.Italic,
             fontSize = fontSize.sp,
             letterSpacing = 1.2.sp,
+            maxLines = maxLines,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.offset(x = 2.dp, y = 2.dp)
         )
         Text(
@@ -459,7 +471,9 @@ fun NxHalftoneTitle(
             fontWeight = FontWeight.Bold,
             fontStyle = FontStyle.Italic,
             fontSize = fontSize.sp,
-            letterSpacing = 1.2.sp
+            letterSpacing = 1.2.sp,
+            maxLines = maxLines,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

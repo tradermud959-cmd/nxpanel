@@ -395,6 +395,7 @@ private fun NxToggleRow(
                     .matchParentSize()
                     .offset(x = 3.dp, y = 3.dp)
                     .background(nxColors.shadow, btnShape)
+                    .border(2.5.dp, nxColors.borderBlack, btnShape)
             )
             Row(
                 modifier = Modifier

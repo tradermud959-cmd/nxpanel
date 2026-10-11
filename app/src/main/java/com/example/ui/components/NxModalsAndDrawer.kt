@@ -29,6 +29,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Palette
@@ -43,7 +44,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -52,12 +55,14 @@ import com.example.ui.theme.NxBackgroundCatalog
 import com.example.ui.theme.NxBackgroundPreset
 import com.example.ui.theme.NxThemeOption
 import com.example.ui.theme.SpaceGroteskFontFamily
+import com.example.ui.theme.ZeroPrimeFontFamily
 
 /**
  * Drawer Navigation:
  * Header: ikon icon_apps + tulisan "NXPANEL" + "MENU UTAMA".
  * Menu: Daftar Chat, Setting, Ganti Tema, Ganti Background, Info Aplikasi, Keluar.
- * Warna tombol drawer HARUS mengikuti tema aktif via LocalNxColors.current, JANGAN hardcode putih.
+ * SEMUA tombol menu pakai double stacked sticker.
+ * Tombol aktif = fill accent + text hitam. Tombol tidak aktif = fill CardDark + text terang.
  */
 @Composable
 fun NxDrawerContent(
@@ -74,7 +79,7 @@ fun NxDrawerContent(
     Column(
         modifier = Modifier
             .fillMaxHeight()
-            .width(305.dp)
+            .width(310.dp)
             .background(color = nxColors.bg)
             .border(width = 3.dp, color = nxColors.borderBlack)
             .windowInsetsPadding(WindowInsets.safeDrawing)
@@ -127,7 +132,7 @@ fun NxDrawerContent(
             testTag = "drawer_item_chats"
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(14.dp))
 
         // 2. Setting
         NxDrawerMenuButton(
@@ -138,7 +143,7 @@ fun NxDrawerContent(
             testTag = "drawer_item_setting"
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(14.dp))
 
         // 3. Info Aplikasi
         NxDrawerMenuButton(
@@ -165,7 +170,7 @@ fun NxDrawerContent(
             testTag = "drawer_item_theme"
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(14.dp))
 
         // 5. Ganti Background
         NxDrawerMenuButton(
@@ -176,7 +181,7 @@ fun NxDrawerContent(
             testTag = "drawer_item_background"
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(14.dp))
 
         // 6. Keluar
         NxDrawerMenuButton(
@@ -199,31 +204,33 @@ private fun NxDrawerMenuButton(
 ) {
     val nxColors = LocalNxColors.current
     val shape = RoundedCornerShape(12.dp)
-    val shadowOffset = 4.dp
+    val shadowOffset = 5.dp
 
-    // Warna tombol drawer HARUS mengikuti tema aktif via LocalNxColors.current, JANGAN hardcode putih.
+    // Tombol aktif = fill accent + text hitam. Tombol tidak aktif = fill CardDark + text terang.
     val fillColor = if (isSelected) nxColors.accent else nxColors.cardDark
     val textColor = if (isSelected) nxColors.cardBrightText else nxColors.cardDarkText
     val iconColor = if (isSelected) nxColors.cardBrightText else nxColors.accent
-    val borderColor = if (isSelected) nxColors.borderBlack else nxColors.accent
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(end = shadowOffset, bottom = shadowOffset)
     ) {
+        // Layer BELAKANG: Double Stacked Sticker Shadow (#E8E8E8 + border hitam 2.5dp, offset 5.dp)
         Box(
             modifier = Modifier
                 .matchParentSize()
                 .offset(x = shadowOffset, y = shadowOffset)
                 .background(color = nxColors.shadow, shape = shape)
+                .border(width = 2.5.dp, color = nxColors.borderBlack, shape = shape)
         )
+        // Layer DEPAN: Elemen utama dengan border hitam 3dp
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(shape)
                 .background(color = fillColor, shape = shape)
-                .border(width = 2.5.dp, color = borderColor, shape = shape)
+                .border(width = 3.dp, color = nxColors.borderBlack, shape = shape)
                 .clickable { onClick() }
                 .padding(horizontal = 16.dp, vertical = 14.dp)
                 .testTag(testTag),
@@ -241,14 +248,16 @@ private fun NxDrawerMenuButton(
                 color = textColor,
                 fontFamily = SpaceGroteskFontFamily,
                 fontWeight = FontWeight.Bold,
-                fontSize = 15.sp
+                fontSize = 15.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
 }
 
 /**
- * Dialog Pilih Tema Warna (sama seperti NX Kalkulator screenshot)
+ * Dialog Pilih Tema Warna (dengan fix judul "PILIH TEMA WARNA" tidak ketiban tombol X)
  */
 @Composable
 fun NxThemePickerDialog(
@@ -266,11 +275,13 @@ fun NxThemePickerDialog(
                 .fillMaxWidth()
                 .padding(end = 6.dp, bottom = 6.dp)
         ) {
+            // Double Stacked Sticker Shadow
             Box(
                 modifier = Modifier
                     .matchParentSize()
                     .offset(x = 6.dp, y = 6.dp)
                     .background(color = nxColors.shadow, shape = dialogShape)
+                    .border(width = 2.5.dp, color = nxColors.borderBlack, shape = dialogShape)
             )
             Column(
                 modifier = Modifier
@@ -280,16 +291,28 @@ fun NxThemePickerDialog(
                     .border(width = 3.dp, color = nxColors.borderBlack, shape = dialogShape)
                     .padding(18.dp)
             ) {
+                // TUGAS 1 FIX: Bungkus judul dan tombol X dalam satu Row,
+                // Modifier.weight(1f) + padding(end = 8.dp), maxLines = 1, TextOverflow.Ellipsis
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    NxHalftoneTitle(
+                    Text(
                         text = "PILIH TEMA WARNA",
-                        fontSize = 18
+                        color = nxColors.cardDarkText,
+                        fontFamily = ZeroPrimeFontFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontStyle = FontStyle.Italic,
+                        fontSize = 17.sp,
+                        letterSpacing = 1.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 8.dp)
                     )
-                    NxBadge(text = "${themes.size} TEMA")
+
+                    NxDialogCloseButton(onClick = onDismiss)
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -298,33 +321,33 @@ fun NxThemePickerDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(max = 380.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(vertical = 4.dp)
                 ) {
                     items(themes, key = { it.id }) { theme ->
                         val isSelected = theme.id.equals(currentThemeId, ignoreCase = true)
                         val rowShape = RoundedCornerShape(12.dp)
-                        val rowFill = if (isSelected) nxColors.shadow else nxColors.cardDark
-                        val rowText = if (isSelected) nxColors.borderBlack else nxColors.cardDarkText
-                        val rowBorder = if (isSelected) nxColors.borderBlack else nxColors.accent
+                        val rowFill = if (isSelected) nxColors.accent else nxColors.cardDark
+                        val rowText = if (isSelected) nxColors.cardBrightText else nxColors.cardDarkText
 
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(end = 4.dp, bottom = 4.dp)
+                                .padding(end = 5.dp, bottom = 5.dp)
                         ) {
                             Box(
                                 modifier = Modifier
                                     .matchParentSize()
-                                    .offset(x = 4.dp, y = 4.dp)
+                                    .offset(x = 5.dp, y = 5.dp)
                                     .background(nxColors.shadow, rowShape)
+                                    .border(2.5.dp, nxColors.borderBlack, rowShape)
                             )
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clip(rowShape)
                                     .background(rowFill, rowShape)
-                                    .border(2.5.dp, rowBorder, rowShape)
+                                    .border(3.dp, nxColors.borderBlack, rowShape)
                                     .clickable { onSelectTheme(theme) }
                                     .padding(horizontal = 14.dp, vertical = 12.dp)
                                     .testTag("theme_option_${theme.id}"),
@@ -354,6 +377,8 @@ fun NxThemePickerDialog(
                                     fontFamily = SpaceGroteskFontFamily,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 15.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier.weight(1f)
                                 )
                                 if (isSelected) {
@@ -411,6 +436,7 @@ fun NxBackgroundPickerDialog(
                     .matchParentSize()
                     .offset(x = 6.dp, y = 6.dp)
                     .background(color = nxColors.shadow, shape = dialogShape)
+                    .border(width = 2.5.dp, color = nxColors.borderBlack, shape = dialogShape)
             )
             Column(
                 modifier = Modifier
@@ -420,10 +446,27 @@ fun NxBackgroundPickerDialog(
                     .border(width = 3.dp, color = nxColors.borderBlack, shape = dialogShape)
                     .padding(18.dp)
             ) {
-                NxHalftoneTitle(
-                    text = "PILIH BACKGROUND",
-                    fontSize = 18
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "PILIH BACKGROUND",
+                        color = nxColors.cardDarkText,
+                        fontFamily = ZeroPrimeFontFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontStyle = FontStyle.Italic,
+                        fontSize = 17.sp,
+                        letterSpacing = 1.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 8.dp)
+                    )
+
+                    NxDialogCloseButton(onClick = onDismiss)
+                }
 
                 Spacer(modifier = Modifier.height(14.dp))
 
@@ -431,7 +474,7 @@ fun NxBackgroundPickerDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(max = 400.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(vertical = 4.dp)
                 ) {
                     item {
@@ -504,6 +547,40 @@ fun NxBackgroundPickerDialog(
 }
 
 @Composable
+private fun NxDialogCloseButton(onClick: () -> Unit) {
+    val nxColors = LocalNxColors.current
+    val closeShape = RoundedCornerShape(8.dp)
+
+    Box(
+        modifier = Modifier.padding(end = 3.dp, bottom = 3.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(34.dp)
+                .offset(x = 3.dp, y = 3.dp)
+                .background(color = nxColors.shadow, shape = closeShape)
+                .border(width = 2.dp, color = nxColors.borderBlack, shape = closeShape)
+        )
+        Box(
+            modifier = Modifier
+                .size(34.dp)
+                .clip(closeShape)
+                .background(color = nxColors.accent, shape = closeShape)
+                .border(width = 2.5.dp, color = nxColors.borderBlack, shape = closeShape)
+                .clickable { onClick() },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Tutup",
+                tint = nxColors.cardBrightText,
+                modifier = Modifier.size(18.dp)
+            )
+        }
+    }
+}
+
+@Composable
 private fun BackgroundPresetRow(
     preset: NxBackgroundPreset,
     isSelected: Boolean,
@@ -511,33 +588,33 @@ private fun BackgroundPresetRow(
 ) {
     val nxColors = LocalNxColors.current
     val rowShape = RoundedCornerShape(12.dp)
-    val rowFill = if (isSelected) nxColors.shadow else nxColors.cardDark
-    val rowText = if (isSelected) nxColors.borderBlack else nxColors.cardDarkText
-    val rowBorder = if (isSelected) nxColors.borderBlack else nxColors.accent
+    val rowFill = if (isSelected) nxColors.accent else nxColors.cardDark
+    val rowText = if (isSelected) nxColors.cardBrightText else nxColors.cardDarkText
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(end = 4.dp, bottom = 4.dp)
+            .padding(end = 5.dp, bottom = 5.dp)
     ) {
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .offset(x = 4.dp, y = 4.dp)
+                .offset(x = 5.dp, y = 5.dp)
                 .background(nxColors.shadow, rowShape)
+                .border(2.5.dp, nxColors.borderBlack, rowShape)
         )
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(rowShape)
                 .background(rowFill, rowShape)
-                .border(2.5.dp, rowBorder, rowShape)
+                .border(3.dp, nxColors.borderBlack, rowShape)
                 .clickable { onClick() }
                 .padding(horizontal = 14.dp, vertical = 12.dp)
                 .testTag("bg_preset_${preset.id}"),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Circle preview with comic shadow
+            // Circle preview with double stacked comic shadow
             Box(
                 modifier = Modifier.padding(end = 2.dp, bottom = 2.dp)
             ) {
@@ -546,6 +623,7 @@ private fun BackgroundPresetRow(
                         .size(28.dp)
                         .offset(x = 2.dp, y = 2.dp)
                         .background(nxColors.shadow, CircleShape)
+                        .border(1.5.dp, nxColors.borderBlack, CircleShape)
                 )
                 Box(
                     modifier = Modifier
@@ -569,6 +647,8 @@ private fun BackgroundPresetRow(
                 fontFamily = SpaceGroteskFontFamily,
                 fontWeight = FontWeight.Bold,
                 fontSize = 15.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
 

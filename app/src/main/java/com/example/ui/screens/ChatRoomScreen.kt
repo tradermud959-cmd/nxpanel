@@ -402,7 +402,7 @@ fun ChatRoomScreen(
             }
         }
 
-        // Preview foto sebelum kirim (di atas TextField, Box border hitam 2.5dp, hard shadow putih #E8E8E8 3dp)
+        // Preview foto sebelum kirim (di atas TextField, Box border hitam 2.5dp, hard shadow putih #E8E8E8 3dp double stacked)
         if (selectedPhotoUri != null) {
             val previewShape = RoundedCornerShape(12.dp)
             Box(
@@ -416,12 +416,13 @@ fun ChatRoomScreen(
                         .matchParentSize()
                         .offset(x = 3.dp, y = 3.dp)
                         .background(color = nxColors.shadow, shape = previewShape)
+                        .border(width = 2.5.dp, color = nxColors.borderBlack, shape = previewShape)
                 )
                 Row(
                     modifier = Modifier
                         .clip(previewShape)
                         .background(color = nxColors.cardDark, shape = previewShape)
-                        .border(width = 2.5.dp, color = nxColors.borderBlack, shape = previewShape)
+                        .border(width = 3.dp, color = nxColors.borderBlack, shape = previewShape)
                         .padding(10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -515,13 +516,14 @@ fun ChatRoomScreen(
                         .size(48.dp)
                         .offset(x = 3.dp, y = 3.dp)
                         .background(color = nxColors.shadow, shape = attachShape)
+                        .border(width = 2.5.dp, color = nxColors.borderBlack, shape = attachShape)
                 )
                 Box(
                     modifier = Modifier
                         .size(48.dp)
                         .clip(attachShape)
                         .background(color = nxColors.cardDark, shape = attachShape)
-                        .border(width = 2.5.dp, color = nxColors.borderBlack, shape = attachShape)
+                        .border(width = 3.dp, color = nxColors.borderBlack, shape = attachShape)
                         .clickable(enabled = !uiState.isSendingMessage && !isEncodingPhoto) {
                             imagePickerLauncher.launch("image/*")
                         }
@@ -552,6 +554,7 @@ fun ChatRoomScreen(
                         .matchParentSize()
                         .offset(x = shadowOffset, y = shadowOffset)
                         .background(color = nxColors.shadow, shape = inputShape)
+                        .border(width = 2.5.dp, color = nxColors.borderBlack, shape = inputShape)
                 )
                 Box(
                     modifier = Modifier
@@ -606,6 +609,7 @@ fun ChatRoomScreen(
                         .size(52.dp)
                         .offset(x = 4.dp, y = 4.dp)
                         .background(color = nxColors.shadow, shape = sendBtnShape)
+                        .border(width = 2.5.dp, color = nxColors.borderBlack, shape = sendBtnShape)
                 )
                 Box(
                     modifier = Modifier
@@ -676,7 +680,7 @@ private fun ChatBubbleItem(
 
     // Pesan keluar (out=true) = bubble accent tema, text hitam, align kanan.
     // Pesan masuk (out=false) = bubble cardDark, text cardDarkText, align kiri.
-    // Semua bubble border hitam 2dp + hard shadow 3dp.
+    // Semua bubble border hitam 2.5dp + double stacked hard shadow 3dp.
     val bubbleFill = if (isOut) nxColors.accent else nxColors.cardDark
     val bubbleText = if (isOut) nxColors.cardBrightText else nxColors.cardDarkText
     // Timestamp warna kontras: out = text hitam opacity 60%, in = text terang opacity 70%
@@ -716,12 +720,13 @@ private fun ChatBubbleItem(
                     .matchParentSize()
                     .offset(x = shadowOffset, y = shadowOffset)
                     .background(color = nxColors.shadow, shape = bubbleShape)
+                    .border(width = 2.5.dp, color = nxColors.borderBlack, shape = bubbleShape)
             )
             Column(
                 modifier = Modifier
                     .clip(bubbleShape)
                     .background(color = bubbleFill, shape = bubbleShape)
-                    .border(width = 2.dp, color = nxColors.borderBlack, shape = bubbleShape)
+                    .border(width = 2.5.dp, color = nxColors.borderBlack, shape = bubbleShape)
                     .combinedClickable(
                         onClick = {},
                         onLongClick = onLongPressReply
@@ -942,6 +947,7 @@ private fun FullscreenPhotoViewerDialog(
                         .size(40.dp)
                         .offset(x = 3.dp, y = 3.dp)
                         .background(color = nxColors.shadow, shape = closeShape)
+                        .border(width = 2.5.dp, color = nxColors.borderBlack, shape = closeShape)
                 )
                 Box(
                     modifier = Modifier
@@ -976,6 +982,7 @@ private fun FullscreenPhotoViewerDialog(
                         .matchParentSize()
                         .offset(x = 4.dp, y = 4.dp)
                         .background(color = nxColors.shadow, shape = infoShape)
+                        .border(width = 2.5.dp, color = nxColors.borderBlack, shape = infoShape)
                 )
                 Column(
                     modifier = Modifier
