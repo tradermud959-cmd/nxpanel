@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">NXPANEL</string>
+    <string name="subtitle_splash">BACA CHAT, BIAR GAK KETINGGALAN</string>
+    <string name="menu_utama">MENU UTAMA</string>
+    <string name="menu_chats">Daftar Chat</string>
+    <string name="menu_setting">Setting</string>
+    <string name="menu_theme">Ganti Tema</string>
+    <string name="menu_background">Ganti Background</string>
+    <string name="menu_info">Info Aplikasi</string>
+    <string name="menu_exit">Keluar</string>
+    <string name="search_placeholder">Cari nama chat...</string>
+    <string name="input_message_placeholder">Tulis pesan...</string>
+    <string name="test_connection">TEST KONEKSI</string>
+    <string name="error_connection">Koneksi ke server gagal</string>
+    <string name="developed_by">DEVELOPED BY</string>
+    <string name="nxkaav_copyright">NXKAAV PROJECT · ALL RIGHTS RESERVED</string>
+</resources>

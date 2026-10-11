@@ -1,0 +1,6 @@
+{
+  "name": "NXPANEL",
+  "description": "Personal Telegram client terhubung ke backend Python lokal di Termux via HTTP dengan gaya visual Neo-Brutalist 3D Comic.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
